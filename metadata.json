@@ -1,0 +1,6 @@
+{
+  "name": "Bambu Farm Manager (LAN Mode)",
+  "description": "Centralized local network farm management dashboard for Bambu Lab 3D printers in LAN-only mode with MQTT/TLS status, multi-printer grid, AMS matrix, batch operations, camera wall, local print queue dispatcher, and AI HMS diagnostics.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

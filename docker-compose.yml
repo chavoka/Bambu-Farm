@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  # Веб-сервис на Python / Flask
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: flask_web_app
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-5000}:5000"
+    environment:
+      - FLASK_ENV=${FLASK_ENV:-development}
+      - FLASK_DEBUG=${FLASK_DEBUG:-1}
+      - PYTHONUNBUFFERED=1
+      # Переменные подключения к базе данных PostgreSQL
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=${POSTGRES_DB:-app_db}
+      - DB_USER=${POSTGRES_USER:-app_user}
+      - DB_PASSWORD=${POSTGRES_PASSWORD:-secret_password}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-app_user}:${POSTGRES_PASSWORD:-secret_password}@db:5432/${POSTGRES_DB:-app_db}
+    volumes:
+      # Монтирование директории с исходным кодом для hot-reload при разработке
+      - ./web:/app
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app_network
+
+  # База данных PostgreSQL
+  db:
+    image: postgres:16-alpine
+    container_name: postgres_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-app_db}
+      POSTGRES_USER: ${POSTGRES_USER:-app_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secret_password}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      # Проброс порта на хост для прямого подключения (DBeaver, pgAdmin, psql)
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      # Именованный том для персистентного хранения данных БД
+      - pgdata:/var/lib/postgresql/data
+      # Скрипты начальной инициализации схемы (опционально)
+      - ./web/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-app_user} -d ${POSTGRES_DB:-app_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - app_network
+
+# Именованные тома
+volumes:
+  pgdata:
+    driver: local
+
+# Изолированная сеть для взаимодействия контейнеров
+networks:
+  app_network:
+    driver: bridge

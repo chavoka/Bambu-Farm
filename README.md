@@ -114,7 +114,7 @@
 ### 1. Клонирование и переход в проект
 ```bash
 git clone https://github.com/chavoka/Bambu-Farm.git
-cd 3d-printer-control-center
+cd Bambu-Farm
 ```
 
 ### 2. Установка зависимостей

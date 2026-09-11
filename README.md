@@ -113,7 +113,7 @@
 
 ### 1. Клонирование и переход в проект
 ```bash
-git clone <URL_РЕПОЗИТОРИЯ>
+git clone [<URL_РЕПОЗИТОРИЯ>](https://github.com/chavoka/Bambu-Farm.git)
 cd 3d-printer-control-center
 ```
 
